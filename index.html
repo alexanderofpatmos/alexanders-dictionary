@@ -6,228 +6,65 @@
     <title>Alexander's Dictionary</title>
     <style>
         body {
-            font-family: 'Times New Roman', Times, serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
+            font-family: 'Times New Roman', serif;
+            font-size: 12px;
+            color: black;
+            background-color: #a8a8a8;
             padding: 20px;
+            max-width: 800px; /* Set the maximum width */
+            margin: 0 auto; /* Center the body */
         }
-        h1, h2 {
+        h1 {
             text-align: center;
+            font-size: 24px;
+            font-weight: bold;
         }
-        p.intro {
-            text-align: center;
-            font-size: 1.2em;
+        .term {
+            font-weight: bold;
+            display: inline;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .definition {
+            display: inline;
         }
-        li {
-            margin: 10px 0;
-        }
-        a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .edit-button, .save-button, .add-button, .back-button, .code-button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+        .see-more {
+            color: blue;
             cursor: pointer;
+            text-decoration: underline;
+            position: relative;
         }
-        .save-button {
-            background-color: #28a745;
-        }
-        .add-button {
-            background-color: #ffc107;
-        }
-        .back-button {
-            background-color: #dc3545;
-        }
-        .code-button {
+        .tooltip {
+            display: none;
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #17a2b8;
-        }
-        input, textarea {
-            width: 100%;
+            top: 0;
+            right: -200px;
+            width: 200px;
             padding: 10px;
-            margin: 10px 0;
-            font-size: 1em;
+            background-color: #dddddd;
+            border: 1px solid #000000;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            font-size: 11px;
+            color: black; /* Ensure text within tooltip is black */
         }
-        textarea {
-            resize: vertical;
+        .see-more:hover .tooltip {
+            display: block;
+        }
+        .entry {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Alexander's Dictionary</h1>
-        <p class="intro">Welcome to Alexander's Dictionary! Click on a word below to view its definition!</p>
-        <ul id="vocab-list">
-            <!-- Vocabulary words will be listed here -->
-        </ul>
+    <h1>Alexander's Dictionary</h1>
 
-        <div id="page-content" style="display: none;">
-            <!-- Content for vocab terms will be inserted here -->
-        </div>
-
-        <button class="edit-button" onclick="editPage()" style="display:none;">Edit</button>
-        <button class="save-button" onclick="savePage()" style="display:none;">Save</button>
-        <button class="add-button" onclick="addNewWord()" style="display:none;">Add New Word</button>
-        <button class="back-button" onclick="showHomePage()" style="display:none;">Back</button>
-        <button class="code-button" onclick="enterCode()">Enter Code</button>
-    </div>
+    <div id="terms-container"></div>
 
     <script>
-        const vocabPages = {
-            exponential: {
-                definition: "Relating to an exponent.",
-                etymology: "From Latin 'exponere', meaning 'to put out'.",
-                image: "",
-                caption: ""
-            },
-            ostensibly: {
-                definition: "Apparently or purportedly, but perhaps not actually.",
-                etymology: "From Latin 'ostendere', meaning 'to show'.",
-                image: "",
-                caption: ""
-            },
-            yuletide: {
-                definition: "The Christmas season.",
-                etymology: "From Old English 'geol', meaning 'Christmas'.",
-                image: "",
-                caption: ""
-            }
-        };
-
-        function alphabetizeAndNumber() {
-            const vocabList = document.getElementById('vocab-list');
-            vocabList.innerHTML = '';
-            const terms = Object.keys(vocabPages).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-            terms.forEach((term, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `${index + 1}. <a href="#" onclick="showPage('${term}')">${term}</a>`;
-                vocabList.appendChild(li);
+        fetch('terms_a.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('terms-container').innerHTML = data;
             });
-        }
-
-        function showPage(term) {
-    const content = vocabPages[term];
-    let pageHTML = `
-        <h2>${term}</h2>
-        <p><strong>Definition:</strong> ${content.definition}</p>
-        <p><strong>Etymology:</strong> ${content.etymology}</p>
-    `;
-    if (content.image) {
-        pageHTML += `
-            <div><img src="${content.image}" alt="${term} image" style="max-width:100%;"></div>
-            <p><em>${content.caption}</em></p>
-        `;
-    }
-    document.getElementById('page-content').innerHTML = pageHTML;
-    document.getElementById('vocab-list').style.display = 'none';
-    document.getElementById('page-content').style.display = 'block';
-    document.querySelector('.back-button').style.display = 'block';
-    document.querySelector('.add-button').style.display = 'none'; // Hide Add Word button on subpages
-    if (isEditMode) {
-        document.querySelector('.edit-button').style.display = 'block';
-    }
-}
-
-function hideButtons() {
-    document.querySelector('.edit-button').style.display = 'none';
-    document.querySelector('.add-button').style.display = 'none';
-    document.querySelector('.back-button').style.display = 'none';
-}
-
-function showHomePage() {
-    document.getElementById('vocab-list').style.display = 'block';
-    document.getElementById('page-content').style.display = 'none';
-    document.querySelector('.edit-button').style.display = 'none';
-    document.querySelector('.back-button').style.display = 'none';
-    if (isEditMode) {
-        document.querySelector('.add-button').style.display = 'block';
-    }
-}
-
-
-        function editPage() {
-            const term = document.querySelector('#page-content h2').textContent;
-            const content = vocabPages[term];
-            document.getElementById('page-content').innerHTML = `
-                <h2>${term}</h2>
-                <p><strong>Definition:</strong> <textarea id="edit-definition">${content.definition}</textarea></p>
-                <p><strong>Etymology:</strong> <textarea id="edit-etymology">${content.etymology}</textarea></p>
-                <p><strong>Image URL:</strong> <input type="text" id="edit-image" value="${content.image}"></p>
-                <p><strong>Caption:</strong> <textarea id="edit-caption">${content.caption}</textarea></p>
-            `;
-            document.querySelector('.edit-button').style.display = 'none';
-            document.querySelector('.save-button').style.display = 'block';
-        }
-
-        function savePage() {
-            const term = document.querySelector('#page-content h2').textContent;
-            vocabPages[term] = {
-                definition: document.getElementById('edit-definition').value,
-                etymology: document.getElementById('edit-etymology').value,
-                image: document.getElementById('edit-image').value,
-                caption: document.getElementById('edit-caption').value
-            };
-            showPage(term);
-            alphabetizeAndNumber();
-            document.querySelector('.edit-button').style.display = 'block';
-            document.querySelector('.save-button').style.display = 'none';
-        }
-
-        function addNewWord() {
-            const newTerm = prompt("Enter the new word:");
-            if (newTerm && !vocabPages[newTerm]) {
-                vocabPages[newTerm] = {
-                    definition: "",
-                    etymology: "",
-                    image: "",
-                    caption: ""
-                };
-                alphabetizeAndNumber();
-                showPage(newTerm);
-                editPage();
-            } else {
-                alert("Word already exists or invalid input.");
-            }
-        }
-
-        function enterCode() {
-    const code = prompt("Enter code to enable edit mode:");
-    if (code === "123") {
-        isEditMode = true;
-        document.querySelector('.add-button').style.display = 'block';
-        document.querySelectorAll('.edit-button').forEach(button => button.style.display = 'none'); // Hide on the home page
-        document.querySelector('.code-button').style.display = 'none';
-    } else {
-        alert("Incorrect code.");
-    }
-}
-
-        let isEditMode = false;
-
-        document.addEventListener('DOMContentLoaded', () => {
-    alphabetizeAndNumber();
-    hideButtons(); // Hide buttons initially
-});
-
     </script>
 </body>
 </html>
